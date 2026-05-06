@@ -10,7 +10,7 @@ const syncUser = inngest.createFunction(
     id: "sync-user",
   },
   { event: "clerk/user.created" },
-  async ({ event }) => {
+  async ({ event, step }) => {
     await connectDB();
 
     const { id, email_addresses, first_name, last_name, image_url } =
@@ -30,6 +30,16 @@ const syncUser = inngest.createFunction(
       name: newUser.name,
       image: newUser.profileImage,
     });
+
+    await step.run("send-welcome-email", async () => {
+      return sendEmail({
+        to: email_addresses,
+        subject: "Welcome To Our App",
+        body: "<p>Thanks For Signing UP!</p>",
+      });
+    });
+
+    //send message for each user when he create account
   },
 );
 
