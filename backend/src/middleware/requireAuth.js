@@ -8,11 +8,13 @@ export const ProtectedRoute = [
     try {
       const clerkId = req.auth().userId;
       if (!clerkId)
-        return res.status(401).json({ msg: "unauthorized - invalid token" });
+        return res
+          .status(401)
+          .json({ message: "unauthorized - invalid token" });
 
       const user = await User.findOne({ clerkId });
 
-      if (!user) return res.status(404).json({ msg: "User Not Found" });
+      if (!user) return res.status(404).json({ message: "User Not Found" });
 
       res.user = user;
 
@@ -20,7 +22,7 @@ export const ProtectedRoute = [
     } catch (error) {
       console.error("Error in ProtectedRoute Middleware,", error);
 
-      res.status(500).json({ msg: "Internal Server Error" });
+      res.status(500).json({ message: "Internal Server Error" });
     }
   },
 ];
