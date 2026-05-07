@@ -2,8 +2,12 @@ import { Inngest } from "inngest";
 import { connectDB } from "./db.js";
 import User from "../models/Users.js";
 import { deleteStreamUser, upsertStreamUser } from "./stream.js";
+import { Resend } from "resend";
+import { ENV } from "./env.js";
 
 export const inngest = new Inngest({ id: "vid-call.ai" });
+
+const resend = new Resend(ENV.RESEND_API_KEY);
 
 const syncUser = inngest.createFunction(
   {
@@ -31,13 +35,19 @@ const syncUser = inngest.createFunction(
       image: newUser.profileImage,
     });
 
-    await step.run("send-welcome-email", async () => {
-      return sendEmail({
-        to: email_addresses,
-        subject: "Welcome To Our App",
-        body: "<p>Thanks For Signing UP!</p>",
-      });
+    await resend.emails.send({
+      from: "onboarding@resend.dev",
+      to: email_addresses.toString(),
+      subject: "Welcome To Our App",
+      html: "<p>Thanks For Signing UP!</p>",
     });
+    // await step.run("send-welcome-email", async () => {
+    //   return await sendEmail({
+    //     to: email_addresses,
+    //     subject: "Welcome To Our App",
+    //     body: "<p>Thanks For Signing UP!</p>",
+    //   });
+    // });
 
     //send message for each user when he create account
   },
