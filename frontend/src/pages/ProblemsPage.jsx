@@ -1,3 +1,13 @@
+/**
+ * ProblemsPage.jsx
+ *
+ * This component renders the practice problems page for the VidCall.ai application.
+ * It displays a list of coding problems with their titles, difficulties, categories,
+ * and descriptions. Users can click on problems to navigate to individual problem pages.
+ * The page also includes statistics showing the count of problems by difficulty level.
+ *
+ * The component uses data from the PROBLEMS constant and utility functions for styling.
+ */
 import { Link } from "react-router";
 import Navbar from "../components/Navbar";
 
@@ -5,6 +15,13 @@ import { PROBLEMS } from "../data/problems";
 import { ChevronRightIcon, Code2Icon } from "lucide-react";
 import { getDifficultyBadgeClass } from "../lib/utils";
 
+/**
+ * ProblemsPage
+ *
+ * Renders the practice problems page with a list of problems and difficulty statistics.
+ *
+ * @returns {JSX.Element} The problems page component.
+ */
 export default function ProblemsPage() {
   const problems = Object.values(PROBLEMS);
 
