@@ -7,7 +7,7 @@ import {
 } from "@clerk/react";
 import { Navigate, Route, Routes } from "react-router";
 import HomePage from "./pages/HomePage";
-import { ProblemsPage } from "./pages/ProblemsPage";
+import ProblemsPage from "./pages/ProblemsPage";
 import { Toaster } from "react-hot-toast";
 import DashboardPage from "./pages/DashboardPage";
 
