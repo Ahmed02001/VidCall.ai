@@ -23,8 +23,6 @@ import { UserButton } from "@clerk/react";
 function Navbar() {
   const location = useLocation();
 
-  console.log(location);
-
   /**
    * Determines if a given path matches the current route.
    *
