@@ -2,9 +2,7 @@ import axiosInstance from "../lib/axios";
 
 export const sessionsApi = {
   createSession: async (data) => {
-    console.log(data);
     const response = await axiosInstance.post("/sessions", data);
-    console.log(response);
     return response.data;
   },
 

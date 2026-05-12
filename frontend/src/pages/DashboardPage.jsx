@@ -13,6 +13,7 @@ import ActiveSessions from "../components/ActiveSessions";
 import RecentSessions from "../components/RecentSessions";
 import CreateSessionModal from "../components/CreateSessionModal";
 import { useUser } from "@clerk/react";
+import toast from "react-hot-toast";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -28,8 +29,10 @@ function DashboardPage() {
     useMyResentSessions();
 
   const handleCreateRoom = () => {
-    if (!roomConfig.problem || !roomConfig.difficulty) return;
-
+    if (!roomConfig.problem || !roomConfig.difficulty) {
+      toast.error("Please select a problem and difficulty");
+      return;
+    }
     createSessionMutation.mutate(
       {
         problem: roomConfig.problem,
@@ -48,7 +51,7 @@ function DashboardPage() {
   const recentSessions = recentSessionsData?.sessions || [];
 
   const isUserInSession = (session) => {
-    if (!user.id) return false;
+    if (!user?.id) return false;
 
     return (
       session.host?.clerkId === user.id ||
