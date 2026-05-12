@@ -16,7 +16,7 @@ export const ProtectedRoute = [
 
       if (!user) return res.status(404).json({ message: "User Not Found" });
 
-      res.user = user;
+      req.user = user;
 
       next();
     } catch (error) {
