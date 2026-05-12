@@ -21,7 +21,7 @@ app.use(clerkMiddleware());
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
 app.use("/chat", chatRoutes);
-app.use("/session", sessionRoutes);
+app.use("/sessions", sessionRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ msg: "sccess to health endpoint API" });

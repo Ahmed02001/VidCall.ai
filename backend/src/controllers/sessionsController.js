@@ -16,6 +16,7 @@
  */
 
 import { chatClient, streamClient } from "../lib/stream.js";
+import { ENV } from "../lib/env.js";
 import Session from "../models/Session.js";
 
 /**
@@ -43,6 +44,18 @@ import Session from "../models/Session.js";
 export async function createSession(req, res) {
   try {
     const { problem, difficulty } = req.body;
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!ENV.STREAM_API_KEY || !ENV.STREAM_API_SECRET) {
+      console.error("Stream API credentials are missing or invalid");
+      return res
+        .status(500)
+        .json({ message: "Stream API credentials are not configured" });
+    }
+
     const userId = req.user._id;
     const clerkId = req.user.clerkId;
 
@@ -60,7 +73,8 @@ export async function createSession(req, res) {
       callId,
     });
 
-    await streamClient.video.call("default", callId).getOrCreate({
+    const call = streamClient.video.call("default", callId);
+    await call.getOrCreate({
       data: {
         created_by_id: clerkId,
         custom: { problem, difficulty, sessionId: session._id.toString() },
@@ -77,7 +91,18 @@ export async function createSession(req, res) {
 
     res.status(201).json({ session: session });
   } catch (error) {
-    console.error("Error in createSession controller", error.message);
+    console.error("Error in createSession controller", error);
+    const isStreamAuthError =
+      error?.code === 5 ||
+      error?.message?.includes("Token signature") ||
+      error?.message?.includes("token signature");
+
+    if (isStreamAuthError) {
+      return res
+        .status(500)
+        .json({ message: "Invalid Stream credentials or token signature" });
+    }
+
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
