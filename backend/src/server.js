@@ -23,6 +23,10 @@ app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/chat", chatRoutes);
 app.use("/sessions", sessionRoutes);
 
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "ok", message: "VidCall.ai backend" });
+});
+
 app.get("/health", (req, res) => {
   res.status(200).json({ msg: "sccess to health endpoint API" });
 });
