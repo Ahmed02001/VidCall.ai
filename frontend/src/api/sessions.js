@@ -1,6 +1,6 @@
 import axiosInstance from "../lib/axios";
 
-export const sessionsApi = {
+const sessionApi = {
   createSession: async (data) => {
     const response = await axiosInstance.post("/sessions", data);
     return response.data;
@@ -17,16 +17,19 @@ export const sessionsApi = {
   },
 
   getSessionById: async (id) => {
+    if (!id) throw new Error("Session ID is required");
     const response = await axiosInstance.get(`/sessions/${id}`);
     return response.data;
   },
 
   joinSession: async (id) => {
+    if (!id) throw new Error("Session ID is required");
     const response = await axiosInstance.post(`/sessions/${id}/join`);
     return response.data;
   },
 
   endSession: async (id) => {
+    if (!id) throw new Error("Session ID is required");
     const response = await axiosInstance.post(`/sessions/${id}/end`);
     return response.data;
   },
@@ -36,3 +39,5 @@ export const sessionsApi = {
     return response.data;
   },
 };
+
+export default sessionApi;

@@ -1,16 +1,11 @@
-import {
-  Show,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-  useUser,
-} from "@clerk/react";
-import { Navigate, Route, Routes } from "react-router";
-import HomePage from "./pages/HomePage";
-import ProblemsPage from "./pages/ProblemsPage";
+import { useUser } from "@clerk/react";
 import { Toaster } from "react-hot-toast";
+import { Navigate, Route, Routes } from "react-router";
 import DashboardPage from "./pages/DashboardPage";
+import HomePage from "./pages/HomePage";
 import ProblemPage from "./pages/ProblemPage";
+import ProblemsPage from "./pages/ProblemsPage";
+import SessionPage from "./pages/SessionPage";
 
 function App() {
   const { isSignedIn, isLoaded } = useUser();
@@ -34,6 +29,10 @@ function App() {
         <Route
           path="/problem/:id"
           element={isSignedIn ? <ProblemPage /> : <Navigate to={"/"} />}
+        />
+        <Route
+          path="/session/:id"
+          element={isSignedIn ? <SessionPage /> : <Navigate to={"/"} />}
         />
       </Routes>
       <Toaster position="top-center" />
