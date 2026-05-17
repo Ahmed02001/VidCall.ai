@@ -1,9 +1,29 @@
+/**
+ * @fileoverview Stream Chat and Video Client Hook
+ *
+ * This module exports a custom React hook for initializing and managing the
+ * Stream Chat and Stream Video clients. It handles user connection, session
+ * joining, channel watching, and proper cleanup to prevent memory leaks and
+ * redundant network requests.
+ *
+ * @module hooks/useStreamClient
+ */
+
 import { useState, useEffect } from "react";
 import { StreamChat } from "stream-chat";
 import toast from "react-hot-toast";
 import { initializeStreamClient, disconnectStreamClient } from "../lib/stream";
 import sessionApi from "../api/sessions";
 
+/**
+ * Custom hook to initialize and manage Stream Video and Chat clients for a session.
+ *
+ * @param {Object} session - The session object from the backend
+ * @param {boolean} loadingSession - True if the session data is currently loading
+ * @param {boolean} isHost - True if the current user is the host of the session
+ * @param {boolean} isParticipant - True if the current user is the participant of the session
+ * @returns {Object} An object containing the initialized streamClient, call, chatClient, channel, and isInitializingCall status
+ */
 function useStreamClient(session, loadingSession, isHost, isParticipant) {
   const [streamClient, setStreamClient] = useState(null);
   const [call, setCall] = useState(null);
@@ -73,7 +93,9 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
       // iife
       (async () => {
         try {
-          if (videoCall) await videoCall.leave();
+          if (videoCall && videoCall.state?.callingState !== 'left') {
+            try { await videoCall.leave(); } catch (e) { /* ignore if already left */ }
+          }
           if (chatClientInstance) await chatClientInstance.disconnectUser();
           await disconnectStreamClient();
         } catch (error) {
@@ -81,7 +103,7 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
         }
       })();
     };
-  }, [session, loadingSession, isHost, isParticipant]);
+  }, [session?.callId, session?.status, loadingSession, isHost, isParticipant]);
 
   return {
     streamClient,

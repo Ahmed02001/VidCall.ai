@@ -27,6 +27,18 @@ app.get("/", (req, res) => {
   res.status(200).json({ status: "ok", message: "VidCall.ai backend" });
 });
 
+app.get("/debug/auth", (req, res) => {
+  try {
+    const auth = req.auth();
+    res.status(200).json({
+      authenticated: !!auth?.userId,
+      userId: auth?.userId || null,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("/health", (req, res) => {
   res.status(200).json({ msg: "sccess to health endpoint API" });
 });
