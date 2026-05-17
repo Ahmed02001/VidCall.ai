@@ -43,14 +43,18 @@ import Session from "../models/Session.js";
  */
 export async function createSession(req, res) {
   try {
+    console.log("[createSession] Request received");
     const { problem, difficulty } = req.body;
 
     if (!req.user) {
+      console.error("[createSession] No user in request");
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+
+
     if (!ENV.STREAM_API_KEY || !ENV.STREAM_API_SECRET) {
-      console.error("Stream API credentials are missing or invalid");
+      console.error("[createSession] Stream API credentials missing");
       return res
         .status(500)
         .json({ message: "Stream API credentials are not configured" });
@@ -60,12 +64,15 @@ export async function createSession(req, res) {
     const clerkId = req.user.clerkId;
 
     if (!problem || !difficulty) {
+      console.error("[createSession] Missing problem or difficulty");
       return res
         .status(400)
         .json({ message: "Problem and Difficulty are required" });
     }
 
     const callId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+
     const session = await Session.create({
       problem,
       difficulty,
@@ -86,24 +93,28 @@ export async function createSession(req, res) {
       created_by_id: clerkId,
       members: [clerkId],
     });
-
     await channel.create();
 
     res.status(201).json({ session: session });
   } catch (error) {
-    console.error("Error in createSession controller", error);
+    console.error("[createSession] Error caught:", error.message);
+    console.error("[createSession] Error code:", error.code);
+    console.error("[createSession] Error type:", error.constructor.name);
+    console.error("[createSession] Full error:", error);
+
     const isStreamAuthError =
       error?.code === 5 ||
       error?.message?.includes("Token signature") ||
       error?.message?.includes("token signature");
 
     if (isStreamAuthError) {
+      console.error("[createSession] Stream auth error detected");
       return res
         .status(500)
         .json({ message: "Invalid Stream credentials or token signature" });
     }
 
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: "Internal Server Error: " + error.message });
   }
 }
 /**
@@ -129,7 +140,8 @@ export async function getActiveSessions(_, res) {
 
     res.status(200).json({ sessions });
   } catch (error) {
-    console.error("Error in getActiveSessions controller", error.message);
+    console.error("[getActiveSessions] Error:", error.message);
+    console.error("[getActiveSessions] Stack:", error.stack);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
@@ -163,7 +175,8 @@ export async function getMyResentSessions(req, res) {
 
     res.status(200).json({ sessions });
   } catch (error) {
-    console.error("Error in getMyResentSessions controller", error.message);
+    console.error("[getMyResentSessions] Error:", error.message);
+    console.error("[getMyResentSessions] Stack:", error.stack);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
@@ -190,11 +203,14 @@ export async function getSessionById(req, res) {
       .populate("host", "name profileImage email clerkId")
       .populate("participant", "name profileImage email clerkId");
 
-    if (!session) return res.status(404).json({ message: "session not found" });
+    if (!session) {
+      return res.status(404).json({ message: "session not found" });
+    }
 
     return res.status(200).json({ session });
   } catch (error) {
-    console.error("Error in getSessionById controller", error.message);
+    console.error("[getSessionById] Error:", error.message);
+    console.error("[getSessionById] Stack:", error.stack);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
@@ -233,13 +249,13 @@ export async function joinSession(req, res) {
         .status(400)
         .json({ message: "cannot join a completed session" });
 
-    if (session.host.toString() !== userId.toString())
+    if (session.host.toString() === userId.toString())
       return res.status(400).json({
-        message: "host cannot join  thier own session as participant",
+        message: "host cannot join their own session as participant",
       });
 
     if (session.participant)
-      res.status(409).json({ message: "session is full" });
+      return res.status(409).json({ message: "session is full" });
 
     session.participant = userId;
     await session.save();
@@ -249,8 +265,8 @@ export async function joinSession(req, res) {
 
     res.status(200).json({ session });
   } catch (error) {
-    console.error("Error in joinSession controller", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("[joinSession] Error:", error.message);
+    res.status(500).json({ message: error.message || "Internal Server Error" });
   }
 }
 /**
@@ -299,9 +315,11 @@ export async function endSession(req, res) {
     session.status = "completed";
     await session.save();
 
-    res.status(200).json({ session, message: " session ended successfully" });
+
+    res.status(200).json({ session });
   } catch (error) {
-    console.error("Error in endSession controller", error.message);
+    console.error("[endSession] Error:", error.message);
+    console.error("[endSession] Stack:", error.stack);
     res.status(500).json({ message: "Internal Server Error" });
   }
 }

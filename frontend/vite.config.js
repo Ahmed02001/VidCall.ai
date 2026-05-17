@@ -5,6 +5,13 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  css: {
+    lightningcss: {
+      drafts: {
+        customMedia: true,
+      },
+    },
+  },
   server: {
     proxy: {
       "/api": {

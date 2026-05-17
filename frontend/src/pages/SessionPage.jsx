@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import {
   useEndSession,
@@ -52,11 +52,14 @@ function SessionPage() {
     problemData?.starterCode?.[selectedLanguage] || "",
   );
 
+  const hasAttemptedJoin = useRef(false);
+
   // auto-join session if user is not already a participant and not the host
   useEffect(() => {
     if (!session || !user || loadingSession) return;
-    if (isHost || isParticipant) return;
+    if (isHost || isParticipant || hasAttemptedJoin.current) return;
 
+    hasAttemptedJoin.current = true;
     joinSessionMutation.mutate(id, { onSuccess: refetch });
 
     // remove the joinSessionMutation, refetch from dependencies to avoid infinite loop
